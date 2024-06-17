@@ -63,5 +63,5 @@ Then, to build an external library use a corresponding bash script in the `scrip
 ./scripts/build-sodium.sh
 ```
 
-Built files will be placed at `external/libs/lib` and `external/libs/include` and commited to the git, so, possibly, you don't even need to build external dependencies since they are prebuilt. 
+Built files will be placed at `external/libs/<lib>/lib` and `external/libs/<lib>/include` and commited to the git, so, possibly, you don't even need to build external dependencies since they are prebuilt. 
 

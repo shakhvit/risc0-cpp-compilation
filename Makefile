@@ -34,16 +34,15 @@ headers:
 
 .PHONY: gcc
 gcc:
-	@if ! [ -d "./riscv32im-${MACHINE}" ]; then \
-        curl -L https://github.com/risc0/toolchain/releases/download/2024.01.05/riscv32im-${MACHINE}.tar.xz | tar xvJ -C ./; \
-	else \
-		echo "riscv32 toolchain already exists, skipping step"; \
-    fi
-	 
+	scripts/install-toolchain.sh
+
 .PHONY: guest
 guest: gcc platform
 
-	${ROOT_DIR}riscv32im-${MACHINE}/bin/riscv32-unknown-elf-g++ -nostartfiles ./guest/main.cpp -o ./guest/out/main -L${ROOT_DIR}guest/out/platform/riscv32im-risc0-zkvm-elf/release -lzkvm_platform -T ./guest/riscv32im-risc0-zkvm-elf.ld
+	${ROOT_DIR}riscv32im-${MACHINE}/bin/riscv32-unknown-elf-g++ ${CPPFLAGS}\
+		-nostartfiles ./guest/main.cpp -o ./guest/out/main \
+		-L${ROOT_DIR}external/libs/libsodium/lib -lsodium -I${ROOT_DIR}external/libs/libsodium/include \
+		-L${ROOT_DIR}guest/out/platform/riscv32im-risc0-zkvm-elf/release -lzkvm_platform -T ./guest/riscv32im-risc0-zkvm-elf.ld
 
 
 .PHONY: execute
