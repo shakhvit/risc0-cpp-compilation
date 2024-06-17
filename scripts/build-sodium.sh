@@ -17,12 +17,14 @@ ROOT_DIR=$(pwd)
 
 export PATH=$RISCV32_TOOLCHAIN:$PATH # add toolchain path to the PATH
 
+rm -rf ${ROOT_DIR}/external/libs/libsodium
 mkdir -p ${ROOT_DIR}/external/libs/libsodium
 
 cd external/libsodium
 
 make clean
-CFLAGS="-march=rv32im -mabi=ilp32" ./configure --host=riscv32-unknown-elf --disable-pie --prefix=${ROOT_DIR}/external/libs/libsodium/
+export CFLAGS="-march=rv32im -mabi=ilp32"
+./configure --host=riscv32-unknown-elf --disable-pie --prefix=${ROOT_DIR}/external/libs/libsodium/
 make && make install
 
 cd -

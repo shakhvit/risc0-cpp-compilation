@@ -330,7 +330,6 @@ name = "c-guest-host"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "bonsai-sdk",
  "risc0-zkvm",
  "serde",
  "tracing-subscriber 0.3.18",
