@@ -14,14 +14,9 @@
 
 #include "platform.h"
 #include <stdint.h>
-
-#ifndef NO_UTF
-#include <utf8proc.h>
 #include <cstring>
 
-
-#define POOL_SIZE 1024 * 1024 // 1 MB for example
-
+#define POOL_SIZE 10 * 1024 * 1024 // 10 MB for example
 static uint8_t memory_pool[POOL_SIZE];
 static size_t current_offset = 0;
 
@@ -51,6 +46,11 @@ static void* custom_realloc(void* ptr, size_t old_size, size_t new_size) {
   }
   return new_ptr;
 }
+
+
+#ifndef NO_UTF
+#include <utf8proc.h>
+
 
 // Initialization function that sets custom memory allocators
 static void utf8proc_initializer() {
@@ -106,7 +106,7 @@ char* performCryptoOperations() {
   auto res = crypto_box_easy(ciphertext, hash, sizeof(hash), nonce, pk, sk);
 
   // Prepare hexadecimal string for output
-  char* result = (char*)malloc(sizeof(ciphertext) * 2 + 1);
+  char* result = (char*)custom_alloc(sizeof(ciphertext) * 2 + 1);
   if (result == nullptr) {
     return nullptr; // Allocation failed
   }
@@ -135,14 +135,16 @@ int main() {
 
   a.value *= b.value;
 
-#ifndef NO_SODIUM
-  auto res = performCryptoOperations();
-#endif
-
 #ifndef NO_UTF
   utf8proc_initializer();
   const char* input = "Hello world!";
   auto res_utf = normalize_utf8( input );
+#endif
+
+
+
+#ifndef NO_SODIUM
+  auto res = performCryptoOperations();
 #endif
 
 
