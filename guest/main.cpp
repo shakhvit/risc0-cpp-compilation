@@ -15,6 +15,69 @@
 #include "platform.h"
 #include <stdint.h>
 
+#ifndef NO_UTF
+#include <utf8proc.h>
+#include <cstring>
+
+
+#define POOL_SIZE 1024 * 1024 // 1 MB for example
+
+static uint8_t memory_pool[POOL_SIZE];
+static size_t current_offset = 0;
+
+// Simple custom allocation function
+static void* custom_alloc(size_t size) {
+  if (current_offset + size > POOL_SIZE)
+    return NULL; // Out of memory
+  void* block = memory_pool + current_offset;
+  current_offset += size; // Move the offset
+  return block;
+}
+
+// Simple custom free function
+static void custom_free(void* ptr) {
+  // In this simple example, we do not actually reclaim memory.
+  // A more complex version could manage free blocks.
+}
+
+// Simple custom realloc function
+static void* custom_realloc(void* ptr, size_t old_size, size_t new_size) {
+  if (new_size <= old_size)
+    return ptr; // If reducing size or same size, return the original pointer.
+  void* new_ptr = custom_alloc(new_size);
+  if (new_ptr) {
+    memcpy(new_ptr, ptr, old_size); // Copy old data to new location
+    custom_free(ptr);               // Free old block
+  }
+  return new_ptr;
+}
+
+// Initialization function that sets custom memory allocators
+static void utf8proc_initializer() {
+  utf8proc_set_custom_allocators(custom_alloc, custom_realloc, custom_free);
+}
+
+
+char* normalize_utf8(const char* input) {
+  // Convert the input string to UTF-8 normalized form NFC (Normalization Form Composed)
+  utf8proc_uint8_t* result;
+  utf8proc_ssize_t result_len;
+  result_len =
+      utf8proc_map((const utf8proc_uint8_t*)input,
+                   0,
+                   &result,
+                   (utf8proc_option_t)(UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE));
+
+  if (result_len < 0) {
+    return NULL;
+  }
+
+  // The result is already allocated by utf8proc_map, so just return it
+  return (char*)result;
+}
+
+#endif
+
 #ifndef NO_SODIUM
 #include <sodium.h>
 #include <cstring>
@@ -75,6 +138,13 @@ int main() {
 #ifndef NO_SODIUM
   auto res = performCryptoOperations();
 #endif
+
+#ifndef NO_UTF
+  utf8proc_initializer();
+  const char* input = "Hello world!";
+  auto res_utf = normalize_utf8( input );
+#endif
+
 
   env_commit(hasher, a.buffer, sizeof(a.buffer));
   env_exit(hasher, 0);

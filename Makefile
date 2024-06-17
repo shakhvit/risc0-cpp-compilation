@@ -42,6 +42,7 @@ guest: gcc platform
 	${ROOT_DIR}riscv32im-${MACHINE}/bin/riscv32-unknown-elf-g++ ${CPPFLAGS}\
 		-nostartfiles ./guest/main.cpp -o ./guest/out/main \
 		-L${ROOT_DIR}external/libs/libsodium/lib -lsodium -I${ROOT_DIR}external/libs/libsodium/include \
+		-L${ROOT_DIR}external/libs/libutf8proc/lib -lutf8proc -I${ROOT_DIR}external/libs/libutf8proc/include \
 		-L${ROOT_DIR}guest/out/platform/riscv32im-risc0-zkvm-elf/release -lzkvm_platform -T ./guest/riscv32im-risc0-zkvm-elf.ld
 
 

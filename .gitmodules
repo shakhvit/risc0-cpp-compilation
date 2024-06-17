@@ -1,3 +1,6 @@
 [submodule "external/libsodium"]
 	path = external/libsodium
 	url = git@github.com:jedisct1/libsodium.git
+[submodule "external/utf8proc"]
+	path = external/utf8proc
+	url = git@github.com:adapt-toolkit/utf8proc.git
