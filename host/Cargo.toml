@@ -1,0 +1,11 @@
+[package]
+name = "c-guest-host"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+risc0-zkvm = { version = "=1.0.0-rc.7" }
+serde = "1.0"
+bonsai-sdk = { version = "=0.8.0-rc.3" }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
