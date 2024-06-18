@@ -6,7 +6,7 @@ First, make sure [rustup] is installed.
 
 Then, install the [Risc Zero toolchain](https://dev.risczero.com/api/zkvm/install).
 
-This example works with `1.0.0` version of the toolchain.
+This example works with `1.0.1` version of the toolchain.
 
 To build all methods and execute the method within the zkVM, run the following
 command:
