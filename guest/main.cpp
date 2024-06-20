@@ -20,17 +20,10 @@
 static uint8_t memory_pool[POOL_SIZE];
 static size_t current_offset = 0;
 
-// Simple custom allocation function
-static void* custom_alloc(size_t size) {
-  if (current_offset + size > POOL_SIZE)
-    return NULL; // Out of memory
-  void* block = memory_pool + current_offset;
-  current_offset += size; // Move the offset
-  return block;
-}
-
 // Simple custom free function
 static void custom_free(void* ptr) {
+  // NOTE: Memory does not need to be freed in the zkvm currently as a bump allocator is used,
+  //       and all memory is short-lived for each proof.
   // In this simple example, we do not actually reclaim memory.
   // A more complex version could manage free blocks.
 }
@@ -39,7 +32,7 @@ static void custom_free(void* ptr) {
 static void* custom_realloc(void* ptr, size_t old_size, size_t new_size) {
   if (new_size <= old_size)
     return ptr; // If reducing size or same size, return the original pointer.
-  void* new_ptr = custom_alloc(new_size);
+  void* new_ptr = env_alloc(new_size);
   if (new_ptr) {
     memcpy(new_ptr, ptr, old_size); // Copy old data to new location
     custom_free(ptr);               // Free old block
@@ -54,7 +47,7 @@ static void* custom_realloc(void* ptr, size_t old_size, size_t new_size) {
 
 // Initialization function that sets custom memory allocators
 static void utf8proc_initializer() {
-  utf8proc_set_custom_allocators(custom_alloc, custom_realloc, custom_free);
+  utf8proc_set_custom_allocators(env_alloc, custom_realloc, custom_free);
 }
 
 
@@ -106,7 +99,7 @@ char* performCryptoOperations() {
   auto res = crypto_box_easy(ciphertext, hash, sizeof(hash), nonce, pk, sk);
 
   // Prepare hexadecimal string for output
-  char* result = (char*)custom_alloc(sizeof(ciphertext) * 2 + 1);
+  char* result = (char*)malloc(sizeof(ciphertext) * 2 + 1);
   if (result == nullptr) {
     return nullptr; // Allocation failed
   }

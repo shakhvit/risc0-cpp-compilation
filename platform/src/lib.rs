@@ -13,6 +13,8 @@
 // limitations under the License.
 
 use core::{ptr, slice};
+use std::alloc::{handle_alloc_error, Layout};
+use std::ffi::c_void;
 use risc0_binfmt::tagged_struct;
 use risc0_zkp::core::digest::Digest;
 use risc0_zkp::core::hash::sha::guest::Impl;
@@ -153,3 +155,17 @@ pub unsafe extern "C" fn env_commit(hasher: *mut sha256_state, bytes_ptr: *const
 pub unsafe extern "C" fn env_read(bytes_ptr: *mut u8, len: u32) {
     sys_read(fileno::STDIN, bytes_ptr, len as usize);
 }
+
+#[no_mangle]
+// TODO ideally this is c_size_t, but not stabilized (not guaranteed to be usize on all archs)
+unsafe extern "C" fn env_alloc(size: usize) -> *mut c_void {
+    let layout = Layout::from_size_align(size, 4).expect("unable to allocate more memory");
+    let ptr = std::alloc::alloc(layout);
+
+    if ptr.is_null() {
+        handle_alloc_error(layout);
+    }
+
+    ptr as *mut c_void
+}
+

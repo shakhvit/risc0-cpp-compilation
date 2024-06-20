@@ -317,6 +317,10 @@ extern "C" {
 void env_read(uint8_t *bytes_ptr, uint32_t len);
 }
 
+extern "C" {
+void *env_alloc(uintptr_t size);
+}
+
 #if defined(DEFINE_SYSCALLS)
 /**
  * # Safety
